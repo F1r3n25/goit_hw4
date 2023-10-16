@@ -61,13 +61,13 @@ def save_data_from_form(data):
     parse_data = urllib.parse.unquote_plus(data.decode())
     try:
         data={}
-        if os.path.getsize('data/data.json') > 0 and Path("data/data.json").exists():
-            with open('data/data.json', encoding='utf-8') as file:
+        if os.path.getsize('storage/data.json') > 0 and Path("storage/data.json").exists():
+            with open('storage/data.json', encoding='utf-8') as file:
                 data.update(json.load(file))
         parse_dict = {key: value for key, value in [el.split('=') for el in parse_data.split('&')]}
         new_data = {str(datetime.datetime.now()): parse_dict}
         data.update(new_data)
-        with open('data/data.json', 'w', encoding='utf-8') as file:
+        with open('storage/data.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
     except ValueError as err:
         logging.error(err)
@@ -102,6 +102,13 @@ def run_http_server(host, port):
 
 
 if __name__ == '__main__':
+    if not os.path.exists("storage"):
+        os.makedirs("storage")
+        logging.info("no folder")
+    if not os.path.exists("storage/data.json"):
+        with open("storage/data.json", "w") as json_file:
+            json.dump({}, json_file)
+            logging.info("no file")
     logging.basicConfig(level=logging.DEBUG, format='%(threadName)s %(message)s')
     server = Thread(target=run_http_server, args=("0.0.0.0", 3000))
     server.start()
